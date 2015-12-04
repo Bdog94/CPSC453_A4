@@ -280,12 +280,12 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         //Diffuse:clamp to prevent subratction if normal faces away Might be ambient
         Colour light_Id = * light->Id;
 
-        //*ret = *ret + * C.k_d * light_Id * fmax(n.dot(shadowRay), 0);//max(n.dot(shadowRay), (double) 0);
+        *ret = *ret + * C.k_d * light_Id * fmax(n.dot(shadowRay), 0);//max(n.dot(shadowRay), (double) 0);
 
         //Diffuse
         //Vector3D l = p - *light->loc;
         //l.normalize();
-        *ret = *ret + *C.k_d * *light->Id * fmax(n.dot(shadowRay), 0);
+        //*ret = *ret + *C.k_d * *light->Id * fmax(n.dot(shadowRay), 0);
         //*ret = *ret + *C.k_d * *light->Id * fmax((*light->loc - p).dot(n), 0);
         //Specular
         Vector3D l = (*view_pos - p);

@@ -31,17 +31,17 @@ int main(int argc, char *argv[])
     Colour *k_d = new Colour(0.0000001, 0.0000001 ,0.0000001);
     Colour *k_s = new Colour(0.000001, 0.000001 ,0.000001);
     double exp = 2;
-    Point3D *circ_center = new Point3D(0, 0, 20);
+    Point3D *circ_center = new Point3D(0, 0, 40);
     Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp);
-    Circle *circ = new Circle( *circ_center, *circColour, 2, *circ_Material);
+    Circle *circ = new Circle( *circ_center, *circColour, 0.5, *circ_Material);
     scene->objects.push_back(circ);
 
 
-    Point3D *circ2_center = new Point3D(0.8, 0.7, 8);
-    Colour  *circ2_color = new Colour(0.7, 0.1, 0.2);
+    Point3D *circ2_center = new Point3D(0.2, 0.2, 8);
+    Colour  *circ2_color = new Colour(0.2, 0.1, 0.2);
     Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp);
-    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 0.3, *circ2_Material );
-    //scene->objects.push_back(circ2);
+    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 0.2, *circ2_Material );
+    scene->objects.push_back(circ2);
 
     Point3D *eye = new Point3D(0, 0,-4);
     Colour *Ia = new Colour(1, 1, 1);
