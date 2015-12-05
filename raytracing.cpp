@@ -128,6 +128,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    Point3D q; //intersection point
    Vector3D n, r, t;    //normal, reflection, transmission
 
+   d.normalize();
    double t_min = std::numeric_limits<float>::max();
    int obj_toDraw = 0;
    if (depth > max) return *bgColour;
@@ -135,7 +136,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    Object * obj = objects[i];
    //Ray * ray = new Ray( p , d);
 
-   d.normalize();
+
    double t = (double) obj->intersect(p, d);
 
 
@@ -151,8 +152,8 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
        return *bgColour;
    }
    q = p + t_min * d;//point that the ray intersected with
-   n = (objects[obj_toDraw]->getOrigin() - q);
-
+  // n = (objects[obj_toDraw]->getOrigin() - q);
+   n =  (q - objects[obj_toDraw]->getOrigin());
   // n = 1.0 * (q - Point3D(0, 0, 0)); //hacky way to copy q
 
    n.normalize();
@@ -168,12 +169,12 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //Clamp RGB to 0 or 1
 
    //Colour &ret = local;
-   //Colour ret = Colour(t_min/22, t_min/22, t_min/22);
+   Colour ret = Colour(t_min/13.7, t_min/13.7, t_min/13.7);
    QTextStream cout(stdout);
    //cout << t_min << "\n";
    //ret.clamp();
   // return *bgColour;
-   return local;
+   return ret;
 
    //return local + reflected + transmitted;
 
@@ -261,6 +262,8 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
 
     QTextStream cout(stdout);
     //double test = n.dot(Vector3D(0, 0, 0));
+
+    //cout << "n is " << n[0] << " , " << n[1] << " , " << n[2] << "\n";
     //cout << test << "\n";
 
     //TODO add a global ambient
@@ -271,7 +274,7 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         Light *light = lights[i];
         //Vector3D shadowRay = ( p - *light->loc);
         Vector3D shadowRay = ( * light->loc - p); //Might not be the right way..
-        //shadowRay.normalize();
+        shadowRay.normalize();
         //ObjectHit = interscect(shadowRay, p);
         //if nothing hit or if what we hit is beyond is beyond the light
 
@@ -280,7 +283,7 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         //Diffuse:clamp to prevent subratction if normal faces away Might be ambient
         Colour light_Id = * light->Id;
 
-        *ret = *ret + * C.k_d * light_Id * fmax(n.dot(shadowRay), 0);//max(n.dot(shadowRay), (double) 0);
+        *ret = *ret + *C.k_d * *light->Id * fmax(n.dot(shadowRay), 0);//max(n.dot(shadowRay), (double) 0);
 
         //Diffuse
         //Vector3D l = p - *light->loc;
@@ -335,5 +338,23 @@ Material Object::getC()
 
 Point3D Object::getOrigin()
 {
+
+}
+
+float Pyriamid::intersect(Point3D p, Vector3D d)
+{
+    Vector3D V1_n = *p2 - *p1;
+    Vector3D V2_n = *p3 - *p1;
+    Vector3D n = V1_n.cross(V2_n);
+    n.normalize();
+
+    //double t = -1 * (p + )
+    Vector3D V1 = *p1 - p;
+    Vector3D V2 = *p2 - p;
+    Vector3D N = V1.cross(V2);
+    N.normalize();
+
+    double d1 = -1 * (p - Point3D(0, 0, 0)).dot(N);
+
 
 }
