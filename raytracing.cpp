@@ -152,8 +152,8 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
        return *bgColour;
    }
    q = p + t_min * d;//point that the ray intersected with
-  // n = (objects[obj_toDraw]->getOrigin() - q);
-   n =  (q - objects[obj_toDraw]->getOrigin());
+   n = (objects[obj_toDraw]->getOrigin() - q);
+   //n =  (q - objects[obj_toDraw]->getOrigin());
   // n = 1.0 * (q - Point3D(0, 0, 0)); //hacky way to copy q
 
    n.normalize();
@@ -169,12 +169,12 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //Clamp RGB to 0 or 1
 
    //Colour &ret = local;
-   Colour ret = Colour(t_min/13.7, t_min/13.7, t_min/13.7);
+   //Colour ret = Colour(t_min/13.7, t_min/13.7, t_min/13.7);
    QTextStream cout(stdout);
    //cout << t_min << "\n";
    //ret.clamp();
   // return *bgColour;
-   return ret;
+   return local;
 
    //return local + reflected + transmitted;
 
@@ -263,11 +263,14 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
     QTextStream cout(stdout);
     //double test = n.dot(Vector3D(0, 0, 0));
 
-    //cout << "n is " << n[0] << " , " << n[1] << " , " << n[2] << "\n";
+    //cout << "p is " << p[0] << " , " << p[1] << " , " << p[2] << "\n";
     //cout << test << "\n";
 
     //TODO add a global ambient
-    Colour *ret = C.ambient;
+    Colour *ret = new Colour();
+    Colour *ambient = new Colour();
+    Colour *diffuse = new Colour();
+    Colour *specular = new Colour();
     //for each light
     for (int i = 0; i < lights.size(); i++)
     {
@@ -279,12 +282,12 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         //if nothing hit or if what we hit is beyond is beyond the light
 
         //Ambient
-        *ret = *C.ambient * *light->Ia;
+        *ambient = *C.ambient * *light->Ia;
         //Diffuse:clamp to prevent subratction if normal faces away Might be ambient
         Colour light_Id = * light->Id;
 
-        *ret = *ret + *C.k_d * *light->Id * fmax(n.dot(shadowRay), 0);//max(n.dot(shadowRay), (double) 0);
-
+        *diffuse = (*C.k_d * *light->Id) * fmax(n.dot(shadowRay), 0);//max(n.dot(shadowRay), (double) 0);
+        cout << fmax(n.dot(shadowRay), 0) << "\n";
         //Diffuse
         //Vector3D l = p - *light->loc;
         //l.normalize();
@@ -294,14 +297,14 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         Vector3D l = (*view_pos - p);
         Vector3D R = 2 * (n.dot(l)) * n - l;
         Vector3D V = *eye -p;
-        //*ret =  *ret + * C.k_s * *light->Is * pow( fmax(R.dot(V),0), C.exp);
-
+        *specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
+        *ret =*ambient + *diffuse + *specular;
     }
 
     //Clamp colour between 0-1 (or 0 - 255) before return!
 
     //if (ret->R() < 0) ret = new Colour(0, ret->G(), ret->B());
-
+    //cout << ret->B() << ret->G() << ret->B() << "\n";
     ret->clamp();
     return *ret;
 }
@@ -356,5 +359,20 @@ float Pyriamid::intersect(Point3D p, Vector3D d)
 
     double d1 = -1 * (p - Point3D(0, 0, 0)).dot(N);
 
+
+}
+
+Colour Pyriamid::getColour()
+{
+
+}
+
+Point3D Pyriamid::getOrigin()
+{
+
+}
+
+Material Pyriamid::getC()
+{
 
 }

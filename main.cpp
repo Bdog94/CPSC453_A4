@@ -23,32 +23,32 @@ int main(int argc, char *argv[])
 	// create new image
 	QImage image(width, height, QImage::Format_RGB32);
 
-    Colour * bgColour = new Colour(1, 1, 1);
+    Colour * bgColour = new Colour(0, 0, 0);
     Scene * scene = new Scene(*bgColour, 5);
-    Colour *circColour = new Colour(0, 1, 0);
+    Colour *circColour = new Colour(0, 0, 1);
     //Colour *k_d = new Colour(1, 1, 1);
     Colour *k_a = new Colour(0, 0, 0);
     Colour *k_d = new Colour(0.4, 0.4, 0.4);
             //new Colour(0.0000001, 0.0000001 ,0.0000001);
-    Colour *k_s = new Colour(0.000001, 0.000001 ,0.000001);
+    Colour *k_s = new Colour(0.6, 0.6 ,0.6);
     double exp = 2;
-    Point3D *circ_center = new Point3D(0, 0, 10);
+    Point3D *circ_center = new Point3D(0, 0, 5);
     Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp);
-    Circle *circ = new Circle( *circ_center, *circColour, 1, *circ_Material);
+    Circle *circ = new Circle( *circ_center, *circColour, 7, *circ_Material);
     scene->objects.push_back(circ);
 
 
-    Point3D *circ2_center = new Point3D(0.2, 0.2, 8);
-    Colour  *circ2_color = new Colour(0.2, 0.1, 0.2);
+    Point3D *circ2_center = new Point3D(7, 7, 10);
+    Colour  *circ2_color = new Colour(0, 1, 0.1);
     Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp);
-    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 0.4, *circ2_Material );
+    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 2, *circ2_Material );
     //scene->objects.push_back(circ2);
 
     Point3D *eye = new Point3D(0, 0,-4);
-    Colour *Ia = new Colour(0, 0, 0);
-    Colour *Id = new Colour(1, 1, 1);
+    Colour *Ia = new Colour(1, 1, 1);
+    Colour *Id = new Colour(0.9, 0.9, 0.9);
     //Colour *Id = new Colour(0.8, 0.1,0.8);
-    Colour *Is = new Colour(1, 1, 1);
+    Colour *Is = new Colour(0.1, 0.1, 0.1);
     Light *light = new Light(*eye, *Ia, *Id, *Is );
     scene->lights.push_back(light);
     scene->eye = eye;
@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
             double g = 0.0;
             double b = 0.0;
 
-            Point3D *P1 = new Point3D(-0.5, 0.5, 0);
-            Point3D *P2 = new Point3D(0.5, 0.5, 0);
-            Point3D *P3 = new Point3D(-0.5, -0.5, 0);
+            Point3D *P1 = new Point3D(-10, 10, 0);
+            Point3D *P2 = new Point3D(10, 10, 0);
+            Point3D *P3 = new Point3D(-10, -10, 0);
 
             Point3D e = *P1 + x/(width -1) * (*P2 - *P1) + y/(height - 1) * (*P3 - *P1);
             //Point3D *p = new Point3D( x/(width - 1),  y/(height -1) , 1); //Point in world coordinates
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 
 	// save to file
 	// TODO: prompt user on command line for output name
-    image.save("output4.png");
+    image.save("output5.png");
     printf("Created the file \n");
 	
 	// application successfully returned
