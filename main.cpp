@@ -25,6 +25,11 @@ int main(int argc, char *argv[])
 
     Colour * bgColour = new Colour(0, 0, 0);
     Scene * scene = new Scene(*bgColour, 5);
+
+
+
+
+
     Colour *circColour = new Colour(0, 1, 0);
     //Colour *k_d = new Colour(1, 1, 1);
     Colour *k_a = new Colour(0, 0, 0);
@@ -32,24 +37,33 @@ int main(int argc, char *argv[])
 
     Colour *k_s = new Colour(0.6, 0.6 ,0.6);
 
-    Colour *k_reflect = new Colour(1, 1, 1);
+    Colour *k_reflect = new Colour(0.1, 0.1, 0.1);
     double exp = 0.25;
     Point3D *circ_center = new Point3D(-4, 0, 4);
     Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp, *k_reflect);
     Circle *circ = new Circle( *circ_center, *circColour, 3, *circ_Material);
-    scene->objects.push_back(circ);
+    //scene->objects.push_back(circ);
+
+
+
+    //Triangle code
+    Point3D *p1 = new Point3D(-1, -1, 5);
+    Point3D *p2 = new Point3D( 2,  2, 5);
+    Point3D *p3 = new Point3D(8, 8, 5);
+    Pyriamid *p = new Pyriamid(*p1,*p2, *p3, *circ_Material);
+    scene->objects.push_back(p);
 
 
     Point3D *circ2_center = new Point3D(4, 0, 4);
     Colour  *circ2_color = new Colour(1, 0, 0);
     Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp, *k_reflect);
     Circle *circ2 = new Circle(*circ2_center, *circ2_color, 3, *circ2_Material );
-    scene->objects.push_back(circ2);
+    //scene->objects.push_back(circ2);
 
     Point3D *eye = new Point3D(0, 0,-8);
     Point3D *lightLoc = new Point3D(0, 0, -8);
     Point3D *light2Loc = new Point3D(-4, 0, -4);
-    Point3D *light3Loc = new Point3D(0, 0, -4);
+    Point3D *light3Loc = new Point3D(0, 0, -8);
     Colour *Ia = new Colour(1, 1, 1);
     Colour *Id = new Colour(0.9, 0.9, 0.9);
     //Colour *Id = new Colour(0.8, 0.1,0.8);
@@ -64,7 +78,7 @@ int main(int argc, char *argv[])
     scene->lights.push_back(light3);
 
     scene->eye = eye;
-    scene->max = 40;
+    scene->max = 15;
     printf("Starting the raytracer");
 	// iterate over the pixels & set colour values
 	for (int x = 0; x < width; x++)

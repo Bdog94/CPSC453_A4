@@ -291,7 +291,7 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         shadowRay.normalize();
 
 
-        if ( intersect(p, shadowRay)){
+        //if ( intersect(p, shadowRay)){
 
             cout << "Something hit" << "\n";
 
@@ -313,15 +313,15 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         //*ret = *ret + *C.k_d * *light->Id * fmax((*light->loc - p).dot(n), 0);
         //Specular
         Vector3D l = (*view_pos - p);
-        l.normalize();
+        //l.normalize();
         Vector3D R = 2 * (n.dot(l)) * n - l;
-        R.normalize();
+        //R.normalize();
         Vector3D V = *eye -p;
-        V.normalize();
+        //V.normalize();
 
-        *specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
+        //*specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
         *ret = *ret + *ambient + *diffuse + *specular;
-        }
+        //}
     }
 
     //Clamp colour between 0-1 (or 0 - 255) before return!
@@ -387,15 +387,50 @@ Point3D Object::getOrigin()
 float Pyriamid::intersect(Point3D p, Vector3D d)
 {
 
-    Point3D center = (1/3) * (*p1 + *p2 + *p3);
-    Vector3D n = center - p;
-    n.normalize();
+    //Point3D center = (*p1 + *p2 + *p3);
+    //Vector3D n = center - p;
+    //n.normalize();
     Point3D P;
 
     Vector3D temp_p = p - Point3D(0, 0, 0);
-    double t = - (temp_p.dot(n))/(d.dot(n));
+    Vector3D numer = (*p1 - *p3);
+    Vector3D denom = (*p2 - *p3);
 
-    //double t = -(p.dot())
+    Vector3D n = numer.cross(denom);
+    //double t = (numer.dot(n))/(denom.dot(n));
+
+    double t = -(n.dot(p - *p1)/(n.dot(d)));
+
+
+
+    Point3D intersectP = p + t * d;
+
+    Vector3D B_P = *p3 - intersectP;
+    Vector3D A_P = *p2 - intersectP;
+    Vector3D C_P = *p1 - intersectP;
+
+    Vector3D p3_p1 = *p3 - *p1;
+    Vector3D p2_p1 = *p2 - *p1;
+    double s =  (1/2) * (p3_p1.cross(p2_p1).length());
+    double s1 = (1/2) * (B_P.cross(C_P).length());
+    double s2 = (1/2) * (A_P.cross(C_P).length());
+    double s3 = (1/2) * (B_P.cross(A_P).length());
+
+    double alpha, beta, gamma;
+
+    alpha = s1/s;
+    beta = s2/s;
+    gamma = s3/s;
+
+    if ( (alpha + beta + gamma) == 1 )
+    {
+        return t;
+    } else {
+        return std::numeric_limits<float>::max();
+    }
+
+
+   // alpha = s1/
 
 
     //Inside test!
@@ -403,8 +438,8 @@ float Pyriamid::intersect(Point3D p, Vector3D d)
 
 
 
-    Vector3D V1_n = *p2 - *p1;
-    Vector3D V2_n = *p3 - *p1;
+    //Vector3D V1_n = *p2 - *p1;
+    //Vector3D V2_n = *p3 - *p1;
     //Vector3D n = V1_n.cross(V2_n);
     n.normalize();
 

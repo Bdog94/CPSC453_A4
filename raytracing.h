@@ -198,6 +198,7 @@ public:
 };
 class Pyriamid : public Object
 {
+public:
     float intersect(Point3D p, Vector3D d);
     Point3D *center;
     Colour *triColour;
@@ -209,13 +210,14 @@ class Pyriamid : public Object
     Point3D *p1;
     Point3D *p2;
     Point3D *p3;
+    Material *C;
 
-    Pyriamid(Point3D &p_p1, Point3D &p_p2, Point3D &p_p3){
+    Pyriamid(Point3D &p_p1, Point3D &p_p2, Point3D &p_p3, Material &p_C){
 
         p1 = &p_p1;
         p2 = &p_p2;
         p3 = &p_p3;
-
+        C = &p_C;
     }
 
 };
