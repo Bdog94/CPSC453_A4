@@ -153,6 +153,7 @@ public:
     Colour phong(Point3D, Vector3D n, Material C);
 
     bool intersect(Point3D p, Vector3D d);
+    bool doesHit(Point3D p, Vector3D d);
 
     Intersect intersect(Ray *r);
     int max;

@@ -154,6 +154,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    if (t_min == std::numeric_limits<float>::max()){
        return *bgColour;
    }
+
    q = p + (t_min - 0.01) * d;//point that the ray intersected with
    n = (objects[obj_toDraw]->getOrigin() - q);
    //n =  (q - objects[obj_toDraw]->getOrigin());
@@ -164,7 +165,6 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //q = intersect(p, d, status);
    //if (status == noHit) return bgColour;
    //Might want to flip d
-
    Vector3D l = (q - p);
    r = -l + 2 * (l.dot(n)) * n ;
    r.normalize();
@@ -262,6 +262,9 @@ Material Circle::getC()
 
 }
 
+Material Pyriamid::getC() {
+    return * this->C;
+}
 
 Colour Scene::phong(Point3D p, Vector3D n, Material C)
 {
@@ -291,9 +294,9 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         shadowRay.normalize();
 
 
-        //if ( intersect(p, shadowRay)){
+        if ( intersect(p, shadowRay)){
 
-            cout << "Something hit" << "\n";
+
 
         //ObjectHit = interscect(shadowRay, p);
         //if nothing hit or if what we hit is beyond is beyond the light
@@ -313,15 +316,15 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         //*ret = *ret + *C.k_d * *light->Id * fmax((*light->loc - p).dot(n), 0);
         //Specular
         Vector3D l = (*view_pos - p);
-        //l.normalize();
+        l.normalize();
         Vector3D R = 2 * (n.dot(l)) * n - l;
-        //R.normalize();
+        R.normalize();
         Vector3D V = *eye -p;
-        //V.normalize();
+        V.normalize();
 
-        //*specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
+        *specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
         *ret = *ret + *ambient + *diffuse + *specular;
-        //}
+        }
     }
 
     //Clamp colour between 0-1 (or 0 - 255) before return!
@@ -341,12 +344,30 @@ bool Scene::intersect(Point3D p, Vector3D d)
      double t = obj->intersect(p, d);
 
      if ( t > 0 && t < std::numeric_limits<float>::max()){
-
          ret = true;
      }
 
     }
     return ret;
+}
+
+bool Scene::doesHit(Point3D p, Vector3D d)
+{
+
+
+    for (int i = 0; i < objects.size(); i++){
+
+        Object *obj = objects[i];
+        double t = obj->intersect(p, d);
+
+        if ( t < 0){
+            return true;
+        }
+    }
+
+
+    return false;
+
 }
 
 
@@ -397,24 +418,36 @@ float Pyriamid::intersect(Point3D p, Vector3D d)
     Vector3D denom = (*p2 - *p3);
 
     Vector3D n = numer.cross(denom);
+    //n.normalize();
+
     //double t = (numer.dot(n))/(denom.dot(n));
+
+    QTextStream cout(stdout);
+
 
     double t = -(n.dot(p - *p1)/(n.dot(d)));
 
+    cout << t << "\n";
 
+    cout << "Numer is " << n.dot(p - *p1) << "\n";
+    cout << "Denom is " << n.dot(d) << "\n";
 
     Point3D intersectP = p + t * d;
 
     Vector3D B_P = *p3 - intersectP;
+   // B_P.normalize();
     Vector3D A_P = *p2 - intersectP;
+    //A_P.normalize();
     Vector3D C_P = *p1 - intersectP;
+    //C_P.normalize();
 
     Vector3D p3_p1 = *p3 - *p1;
     Vector3D p2_p1 = *p2 - *p1;
-    double s =  (1/2) * (p3_p1.cross(p2_p1).length());
-    double s1 = (1/2) * (B_P.cross(C_P).length());
-    double s2 = (1/2) * (A_P.cross(C_P).length());
-    double s3 = (1/2) * (B_P.cross(A_P).length());
+    double s  = ((double)1/2) * (double) (p3_p1.cross(p2_p1).length());
+    double s1 = ((double)1/2) * (double) (B_P.cross(C_P).length());
+    double s2 = ((double)1/2) * (double)(A_P.cross(C_P).length());
+    double s3 = ((double)1/2) * (double)(B_P.cross(A_P).length());
+
 
     double alpha, beta, gamma;
 
@@ -422,7 +455,9 @@ float Pyriamid::intersect(Point3D p, Vector3D d)
     beta = s2/s;
     gamma = s3/s;
 
-    if ( (alpha + beta + gamma) == 1 )
+    cout << " alpha + beta + gamma " << alpha + beta + gamma << "\n";
+
+    if ( (alpha + beta + gamma) <= (1.01) && (alpha + beta + gamma) >= (0.99) )
     {
         return t;
     } else {
@@ -464,7 +499,4 @@ Point3D Pyriamid::getOrigin()
 
 }
 
-Material Pyriamid::getC()
-{
 
-}
