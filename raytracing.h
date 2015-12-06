@@ -57,6 +57,8 @@ public:
     Colour * k_s;
     double  exp;
 
+    Colour * k_reflect;
+
     Material () {
         ambient = new Colour();
         k_d = new Colour();
@@ -71,7 +73,16 @@ public:
         this->k_d = &k_d;
         this->k_s = &k_s;
         this->exp = exp;
+        this->k_reflect = new Colour();
 
+    }
+    Material(Colour &ambient, Colour &k_a, Colour &k_d, Colour &k_s, double exp, Colour &k_reflect){
+        this->ambient = &ambient;
+        this->k_a = &k_a;
+        this->k_d = &k_d;
+        this->k_s = &k_s;
+        this->exp = exp;
+        this->k_reflect = &k_reflect;
     }
 
 };

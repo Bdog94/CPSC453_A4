@@ -28,31 +28,43 @@ int main(int argc, char *argv[])
     Colour *circColour = new Colour(0, 0, 1);
     //Colour *k_d = new Colour(1, 1, 1);
     Colour *k_a = new Colour(0, 0, 0);
-    Colour *k_d = new Colour(0.4, 0.4, 0.4);
-            //new Colour(0.0000001, 0.0000001 ,0.0000001);
+    Colour *k_d = new Colour(0.5, 0.5, 0.5);
+
     Colour *k_s = new Colour(0.6, 0.6 ,0.6);
-    double exp = 2;
-    Point3D *circ_center = new Point3D(0, 0, 5);
-    Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp);
-    Circle *circ = new Circle( *circ_center, *circColour, 7, *circ_Material);
+
+    Colour *k_reflect = new Colour(0.1, 0.1, 0.1);
+    double exp = 0.5;
+    Point3D *circ_center = new Point3D(3, 0, 2);
+    Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp, *k_reflect);
+    Circle *circ = new Circle( *circ_center, *circColour, 2, *circ_Material);
     scene->objects.push_back(circ);
 
 
-    Point3D *circ2_center = new Point3D(7, 7, 10);
-    Colour  *circ2_color = new Colour(0, 1, 0.1);
-    Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp);
+    Point3D *circ2_center = new Point3D(-3, 0, 2);
+    Colour  *circ2_color = new Colour(1, 0, 0);
+    Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp, *k_reflect);
     Circle *circ2 = new Circle(*circ2_center, *circ2_color, 2, *circ2_Material );
-    //scene->objects.push_back(circ2);
+    scene->objects.push_back(circ2);
 
-    Point3D *eye = new Point3D(0, 0,-4);
+    Point3D *eye = new Point3D(0, 0,-8);
+    Point3D *lightLoc = new Point3D(4, 0, -2);
+    Point3D *light2Loc = new Point3D(-4, 0, -2);
+    Point3D *light3Loc = new Point3D(0, 0, -8);
     Colour *Ia = new Colour(1, 1, 1);
     Colour *Id = new Colour(0.9, 0.9, 0.9);
     //Colour *Id = new Colour(0.8, 0.1,0.8);
-    Colour *Is = new Colour(0.1, 0.1, 0.1);
-    Light *light = new Light(*eye, *Ia, *Id, *Is );
-    scene->lights.push_back(light);
+    Colour *Is = new Colour(1, 1, 1);
+    Light *light = new Light(*lightLoc, *Ia, *Id, *Is );
+    Light *light2 = new Light(*light2Loc, *Ia, *Id, *Is);
+    Light *light3 = new Light(*light3Loc, *Ia, *Id, *Is);
+    //Multiple light code
+    //scene->lights.push_back(light);
+    //scene->lights.push_back(light2);
+
+    scene->lights.push_back(light3);
+
     scene->eye = eye;
-    scene->max = 3;
+    scene->max = 1;
     printf("Starting the raytracer");
 	// iterate over the pixels & set colour values
 	for (int x = 0; x < width; x++)
@@ -78,7 +90,7 @@ int main(int argc, char *argv[])
             //Ray *ray = new Ray(&p, &d);
             //Ray * ray2 = new Ray(*p, d);
 
-            Colour c = scene->trace(*eye, d, -1 );
+            Colour c = scene->trace(*eye, d, 0 );
 
             r = c.R();
             g = c.G();
@@ -120,7 +132,7 @@ int main(int argc, char *argv[])
 
 	// save to file
 	// TODO: prompt user on command line for output name
-    image.save("output5.png");
+    image.save("output6.png");
     printf("Created the file \n");
 	
 	// application successfully returned

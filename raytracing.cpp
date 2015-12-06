@@ -161,20 +161,25 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //q = intersect(p, d, status);
    //if (status == noHit) return bgColour;
    r = -d + 2 * (d.dot(n)) * n ;
+   r.normalize();
    //t = transmit(q, n);
    this->view_pos = &p;
-   local = phong(q , n ,objects[obj_toDraw]->getC());
-   //reflected = trace(q, r, depth + 1);
+   Material objectMaterial = objects[obj_toDraw]->getC();
+   local = phong(q , n ,objectMaterial);
+   reflected = * objectMaterial.k_reflect *trace(q, r, depth + 1);
    //transmitted = trace(q, t, depth + 1);
    //Clamp RGB to 0 or 1
 
-   //Colour &ret = local;
+   Colour ret = local + reflected;
+
    //Colour ret = Colour(t_min/13.7, t_min/13.7, t_min/13.7);
    QTextStream cout(stdout);
-   //cout << t_min << "\n";
-   //ret.clamp();
+
+   ret.clamp();
   // return *bgColour;
-   return local;
+
+
+   return ret;
 
    //return local + reflected + transmitted;
 
@@ -223,14 +228,8 @@ float Circle::intersect(Point3D p, Vector3D D)
         //return inter;
     } else {
         if (roots[0] < roots[1]){
-            //inter = new Intersect(true);
-            cout << roots[0] << " 0< " << roots[1] << "\n";
             return roots[0];
         } else {
-            //cout << roots[1];
-            cout << roots[1] << " 1< " << roots[0] << "\n";
-            //cout << (roots[0] - roots[1]) << "\n";
-           // inter = new Intersect(true);
             return roots[1];
         }
     }
@@ -287,7 +286,6 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         Colour light_Id = * light->Id;
 
         *diffuse = (*C.k_d * *light->Id) * fmax(n.dot(shadowRay), 0);//max(n.dot(shadowRay), (double) 0);
-        cout << fmax(n.dot(shadowRay), 0) << "\n";
         //Diffuse
         //Vector3D l = p - *light->loc;
         //l.normalize();
@@ -295,10 +293,14 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         //*ret = *ret + *C.k_d * *light->Id * fmax((*light->loc - p).dot(n), 0);
         //Specular
         Vector3D l = (*view_pos - p);
+        l.normalize();
         Vector3D R = 2 * (n.dot(l)) * n - l;
+        R.normalize();
         Vector3D V = *eye -p;
+        V.normalize();
+
         *specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
-        *ret =*ambient + *diffuse + *specular;
+        *ret = *ret + *ambient + *diffuse + *specular;
     }
 
     //Clamp colour between 0-1 (or 0 - 255) before return!
@@ -346,9 +348,26 @@ Point3D Object::getOrigin()
 
 float Pyriamid::intersect(Point3D p, Vector3D d)
 {
+
+    Point3D center = (1/3) * (*p1 + *p2 + *p3);
+    Vector3D n = center - p;
+    n.normalize();
+    Point3D P;
+
+    Vector3D temp_p = p - Point3D(0, 0, 0);
+    double t = - (temp_p.dot(n))/(d.dot(n));
+
+    //double t = -(p.dot())
+
+
+    //Inside test!
+
+
+
+
     Vector3D V1_n = *p2 - *p1;
     Vector3D V2_n = *p3 - *p1;
-    Vector3D n = V1_n.cross(V2_n);
+    //Vector3D n = V1_n.cross(V2_n);
     n.normalize();
 
     //double t = -1 * (p + )

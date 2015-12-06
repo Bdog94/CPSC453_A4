@@ -244,6 +244,11 @@ inline Point3D operator +(const Point3D& a, const Vector3D& b)
 {
   return Point3D(a[0]+b[0], a[1]+b[1], a[2]+b[2]);
 }
+inline Point3D operator +(const Point3D& a, const Point3D& b)
+{
+    return Point3D(a[0] + b[0], a[1] + b[1], a[2] + a[3]);
+}
+
 inline Point4D operator +(const Point4D& a, const Point4D& b)
 {
   return Point4D(a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + a[3]);
