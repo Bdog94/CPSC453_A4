@@ -151,6 +151,9 @@ public:
     Colour trace(Ray * r);
     Colour trace(Point3D p, Vector3D d, int depth);
     Colour phong(Point3D, Vector3D n, Material C);
+
+    bool intersect(Point3D p, Vector3D d);
+
     Intersect intersect(Ray *r);
     int max;
     Scene();

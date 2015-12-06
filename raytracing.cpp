@@ -124,14 +124,16 @@ Colour Scene::trace(Ray *r)
 Colour Scene::trace(Point3D p, Vector3D d, int depth)
 {
 
+
    Colour local, reflected, transmitted;
    Point3D q; //intersection point
    Vector3D n, r, t;    //normal, reflection, transmission
 
    d.normalize();
    double t_min = std::numeric_limits<float>::max();
-   int obj_toDraw = 0;
+   int obj_toDraw = 80;
    if (depth > max) return *bgColour;
+   Object *obj;
    for (int i = 0; i <objects.size(); i++){
    Object * obj = objects[i];
    //Ray * ray = new Ray( p , d);
@@ -140,18 +142,19 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    double t = (double) obj->intersect(p, d);
 
 
-   //delete ray;
+
    if (t != std::numeric_limits<float>::max() ){
        if (t < t_min){
            t_min = t;
            obj_toDraw = i;
        }
     }
+
    }
    if (t_min == std::numeric_limits<float>::max()){
        return *bgColour;
    }
-   q = p + t_min * d;//point that the ray intersected with
+   q = p + (t_min - 0.01) * d;//point that the ray intersected with
    n = (objects[obj_toDraw]->getOrigin() - q);
    //n =  (q - objects[obj_toDraw]->getOrigin());
   // n = 1.0 * (q - Point3D(0, 0, 0)); //hacky way to copy q
@@ -160,7 +163,10 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //Intersect inter = obj->intersect(ray);
    //q = intersect(p, d, status);
    //if (status == noHit) return bgColour;
-   r = -d + 2 * (d.dot(n)) * n ;
+   //Might want to flip d
+
+   Vector3D l = (q - p);
+   r = -l + 2 * (l.dot(n)) * n ;
    r.normalize();
    //t = transmit(q, n);
    this->view_pos = &p;
@@ -175,6 +181,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //Colour ret = Colour(t_min/13.7, t_min/13.7, t_min/13.7);
    QTextStream cout(stdout);
 
+   cout << obj_toDraw << "\n";
    ret.clamp();
   // return *bgColour;
 
@@ -270,18 +277,31 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
     Colour *ambient = new Colour();
     Colour *diffuse = new Colour();
     Colour *specular = new Colour();
+
+
+    //Ambient
+    *ambient = *C.ambient;
+
     //for each light
     for (int i = 0; i < lights.size(); i++)
     {
         Light *light = lights[i];
         //Vector3D shadowRay = ( p - *light->loc);
-        Vector3D shadowRay = ( * light->loc - p); //Might not be the right way..
+        Vector3D shadowRay = ( * light->loc - p);
         shadowRay.normalize();
+
+
+        if ( intersect(p, shadowRay)){
+
+            cout << "Something hit" << "\n";
+
         //ObjectHit = interscect(shadowRay, p);
         //if nothing hit or if what we hit is beyond is beyond the light
 
-        //Ambient
-        *ambient = *C.ambient * *light->Ia;
+
+
+
+
         //Diffuse:clamp to prevent subratction if normal faces away Might be ambient
         Colour light_Id = * light->Id;
 
@@ -301,6 +321,7 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
 
         *specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
         *ret = *ret + *ambient + *diffuse + *specular;
+        }
     }
 
     //Clamp colour between 0-1 (or 0 - 255) before return!
@@ -309,6 +330,23 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
     //cout << ret->B() << ret->G() << ret->B() << "\n";
     ret->clamp();
     return *ret;
+}
+
+bool Scene::intersect(Point3D p, Vector3D d)
+{
+
+    bool ret = false;
+    for (int i = 0; i < objects.size(); i++){
+     Object *obj = objects[i];
+     double t = obj->intersect(p, d);
+
+     if ( t > 0 && t < std::numeric_limits<float>::max()){
+
+         ret = true;
+     }
+
+    }
+    return ret;
 }
 
 
