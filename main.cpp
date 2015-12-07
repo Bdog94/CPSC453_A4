@@ -1,6 +1,7 @@
 #include <QImage>
 #include <QColor>
 #include <QApplication>
+#include <QString>
 #include <stdlib.h>
 #include <algebra.h>
 #include "raytracing.h"
@@ -12,13 +13,24 @@ int main(int argc, char *argv[])
     // currently unused parameters
 	Q_UNUSED(argc);
 	Q_UNUSED(argv);
-    double width = 1000;
-    double height = 1000;
+    double width = 200;
+    double height = 200;
 
+    double eyeX  = 0, eyeY = 0, eyeZ = -4;
     QTextStream qin(stdin);
     QTextStream qout(stdout);
 
+
     /*
+    qout << "Enter the eyeX " <<endl;
+    qin >> eyeX;
+
+    qout << "Enter the eyeY " << endl;
+    qin >> eyeY;
+
+    qout << "Enter the eyeZ" << endl;
+    qin >> eyeZ;
+
     qout << "Enter image width: " << endl;
     qin >> width;
     qout << "Enter image height: " << endl;
@@ -30,7 +42,7 @@ int main(int argc, char *argv[])
 	// create new image
 	QImage image(width, height, QImage::Format_RGB32);
 
-    Colour * bgColour = new Colour(0, 0, 0);
+    Colour * bgColour = new Colour(0.5, 0.5, 0.5);
     Scene * scene = new Scene(*bgColour, 5);
 
 
@@ -52,9 +64,9 @@ int main(int argc, char *argv[])
 
     Colour *k_reflect = new Colour(0.3, 0.3, 0.3);
     double exp = 5;
-    Point3D *circ_center = new Point3D(-4, 0, 2);
+    Point3D *circ_center = new Point3D(-4, 0, 8);
     Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp, *k_reflect);
-    Circle *circ = new Circle( *circ_center, *circColour, 3.5, *circ_Material);
+    Circle *circ = new Circle( *circ_center, *circColour, 6, *circ_Material);
     scene->objects.push_back(circ);
 
 
@@ -67,31 +79,46 @@ int main(int argc, char *argv[])
     Point3D *p3 = new Point3D(8, 8, 0);
     Point3D *p2 = new Point3D( -8,  8, 0);
     Point3D *p1 = new Point3D(8, 0, 0);
-    Colour *pColour = new Colour(0.5, 0.5, 0.5);
+    Colour *pColour = new Colour(0.1, 0.1, 0.1);
     Material *p_Material = new Material(*pColour, *k_a, *k_d, *k_s, exp, *k_reflect);
     Pyriamid *p = new Pyriamid(*p1,*p2, *p3, *p_Material);
     scene->objects.push_back(p);
 
 
-    Point3D *tri2_p1 = new Point3D(8, 0, 0);
+    Point3D *tri2_p1 = new Point3D(8, 0, 10);
     Point3D *tri2_p2 = new Point3D(-8, 0, 0);
     Point3D *tri2_p3 = new Point3D(-8, 8, 0);
 
     Pyriamid *pry_2 = new Pyriamid(*tri2_p1, *tri2_p2, *tri2_p3, *p_Material);
-    scene->objects.push_back(pry_2);
+    //scene->objects.push_back(pry_2);
 
 
-    Point3D *circ2_center = new Point3D(4, 0, 4);
+    Point3D *tri_floor_p1 = new Point3D(-10, -10, 0);
+    Point3D *tri_floor_p2 = new Point3D(-10, -10, 10);
+    Point3D *tri_floor_p3 = new Point3D(10, -10, 0);
+
+    Pyriamid *floor1 = new Pyriamid(*tri_floor_p1, *tri_floor_p2, *tri_floor_p3, *p_Material);
+    //scene->objects.push_back(floor1);
+
+    Point3D *tri_floor2_p1 = new Point3D(10, -10, 0);
+    Point3D *tri_floor2_p2 = new Point3D(10, -10, 10);
+    Point3D *tri_floor2_p3 = new Point3D(-10, -10, 10);
+
+    Pyriamid *floor2 = new Pyriamid(*tri_floor2_p1, *tri_floor2_p2, *tri_floor2_p3, *p_Material);
+    //scene->objects.push_back(floor2);
+
+
+    Point3D *circ2_center = new Point3D(0, 0, 20);
     Colour  *circ2_color = new Colour(1, 0, 0);
     Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp, *k_reflect);
-    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 3.5, *circ2_Material );
-    scene->objects.push_back(circ2);
+    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 5, *circ2_Material );
+   scene->objects.push_back(circ2);
 
-    Point3D *eye = new Point3D(0, 0,-8);
+    Point3D *eye = new Point3D(eyeX, eyeY,eyeZ);
     Point3D *lightLoc = new Point3D(0, 0, -8);
-    Point3D *light2Loc = new Point3D(0, 15, 0);
-    Point3D *topLightLoc = new Point3D(0, -15, 0);
-    Point3D *light3Loc = new Point3D(0, 0, -8);
+    Point3D *light2Loc = new Point3D(0, 40, 0);
+    Point3D *topLightLoc = new Point3D(-40, -40, 0);
+    Point3D *light3Loc = new Point3D(-40, 0, 0);
     Colour *Ia = new Colour(1, 1, 1);
     Colour *Id = new Colour(0.9, 0.9, 0.9);
     //Colour *Id = new Colour(0.8, 0.1,0.8);
@@ -102,12 +129,15 @@ int main(int argc, char *argv[])
     Light *light3 = new Light(*light3Loc, *Ia, *Id, *Is);
     //Multiple light code
     //scene->lights.push_back(light);
-    scene->lights.push_back(light2);
-    scene->lights.push_back(topLight);
-    //scene->lights.push_back(light3);
+    //scene->lights.push_back(light2);
+    //scene->lights.push_back(topLight);
+    scene->lights.push_back(light3);
 
+    //Scene set up stuff
     scene->eye = eye;
-    scene->max = 15;
+    scene->max = 0;
+    scene->isNormalMode= true;
+
     bool prev = false;
     printf("Starting the raytracer");
 	// iterate over the pixels & set colour values
@@ -141,10 +171,17 @@ int main(int argc, char *argv[])
 
 
 
+    bool isBlurryMode = false;
 	for (int x = 0; x < width; x++)
 	{
 		for (int y = 0; y < height; y++)
 		{
+            double delta = 0.002; //For anti aliasing
+
+            if (isBlurryMode){
+                delta = 0.3;
+            }
+
             double r = 1.0;
             double g = 1.0;
             double b = 1.0;
@@ -155,134 +192,41 @@ int main(int argc, char *argv[])
             double y_y = ((double)y)/((double)(height - 1));
             Point3D e = *P1 + x_x * (*P2 - *P1) + y_y * (*P3 - *P1);
             //Point3D *p = new Point3D( x/(width - 1),  y/(height -1) , 1); //Point in world coordinates
-			// compute rgb values
+            // compute rgb values
             // TODO: replace with values from ray tracing
 
             //Point3D *p= new Point3D(x, y, 0);
             Vector3D d = *eye - e;
             d.normalize();
-            //Ray *ray = new Ray(&p, &d);
-            //Ray * ray2 = new Ray(*p, d);
-
-            /*
-            if (scene->doesHit(*eye, d)){
-
-                Colour c = scene->trace(*eye, d, 0 );
-
-                r = c.R();
-                g = c.G();
-                b = c.B();
-
-                image.setPixel(x, y,
-                    qRgb(r * 255, g * 255, b * 255));
-
-                /*
-                double yNext = ((double)y -1)/((double)(height - 1));
-
-                Point3D neighbour = *P1 + x_x * (*P2 - *P1) + yNext * (*P3 - *P1);
-
-
-                    for (int i = 0; i < 10; i++){
-                        y--;
-                        yNext = ((double)y)/((double)(height - 1));
-                        neighbour = *P1 + x_x * (*P2 - *P1) + yNext * (*P3 - *P1);
-                        cout << "Y is "<< y << "\n";
-                        if (scene->doesHit(neighbour, *eye - neighbour)){
-                           continue;
-                        } else {
-                            printf("Toon shading");
-                            r = 0.0;
-                            g = 0.0;
-                            b = 0.0;
-
-                            image.setPixel(x, y,
-                                qRgb(r * 255, g * 255, b * 255));
-
-                        }
-
-                    }
-
-                y +=10;
-
-            } else {
-                image.setPixel(x, y,
-                    qRgb(r * 255, g * 255, b * 255));
-
-            }
-        */
-
-
-
-
-
-            /*
-            if (!prev){
-                if (scene->intersect(*eye, d)){
-                    r = 1.0;
-                    g = 1.0;
-                    b = 1.0;
-                    prev = true;
-                }
-            } else if (scene->intersect(*eye, d)){
-                prev = true;
-                r = 1.0;
-                g = 1.0;
-                b = 1.0;
-                image.setPixel(x, y,
-                    qRgb(r * 255, g * 255, b * 255));
-            } else {
-                image.setPixel(x, y,
-                    qRgb(r * 255, g * 255, b * 255));
-                prev = false;
-            }
-
-            if (prev && !scene->intersect(*eye,d)){
-                if ((x + 5) < width){
-                    for (int i = 0; i < 5; i++){
-                        r = 1.0;
-                        g = 1.0;
-                        b = 1.0;
-                        image.setPixel(x, y,
-                            qRgb(r * 255, g * 255, b * 255));
-                        x++;
-                    }
-
-                }
-            }*/
-
-            //Comment this back in once toon shading has been implented
-
 
             Colour c = scene->trace(*eye, d, 0 );
 
-            r = c.R();
-            g = c.G();
-            b = c.B();
+            Point3D *eye2 = new Point3D((eyeX + delta), eyeY, eyeZ);
+            d = *eye2 - e;
 
-            //Point3D center = new Point3D(5, 5,0);
+            Colour c2 = scene->trace(*eye2, d, 0);
 
-            //Circle circ = new Circle(center,(float) 30.0);
+            Point3D *eye3 = new Point3D(eyeX , (eyeY + delta), eyeZ);
+            d = *eye3 - e;
+
+            Colour c3 = scene->trace(*eye3, d, 0);
+
+            Point3D *eye4 = new Point3D((eyeX + delta), (eyeY + delta), eyeZ);
+            d = *eye4 - e;
+
+            Colour c4 = scene->trace(*eye4, d, 0);
+
+            Colour finalC = (c + c2 + c3 + c4) * Colour((double)1/4, (double)1/4, (double)1/4);
 
 
 
-            /*
-            if (x > width / 2 && y < height / 2) r = 1.0;
-            if (x > width/4  && y < height / 4 ) r = 0.5;
-            if (x > width/8  && y < height / 8 ) r = 0.25;
-            if (x < width / 2 && y > height / 2) g = 1.0;
-            if (x < width / 4 && y > height / 4) g = 0.5;
-            if (x < width / 8 && y > height / 8) g = 0.25;
-            if (x > width / 2 && y > height / 2) b = 1.0;
-            if (x > width / 4 && y > height / 4) b = 0.5;
-            if (x > width / 8 && y > height / 8) b = 0.25;
-            */
 
-            /*
-            if ( x>= 100 && y>= 100){
-                r, g, b = 0.5;
-                r = 1.0;
 
-            }*/
+            r = finalC.R();
+            g = finalC.G();
+            b = finalC.B();
+
+
 			// set pixel value
 
 
@@ -294,11 +238,15 @@ int main(int argc, char *argv[])
             //cout << "The x value is " << x << "The y value is " << y << "\n";
 		}
 	}
+    /*
+     QString filename;
 
-
+    qout << "Enter the file name " << endl;
+    qin >> filename;
+    */
 	// save to file
 	// TODO: prompt user on command line for output name
-    image.save("ReflectionWithFloor.png");
+    image.save("Triangles2.png");
     printf("Created the file \n");
 	
 	// application successfully returned

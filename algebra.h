@@ -574,6 +574,9 @@ public:
     return b_;
   }
   void clamp();
+  void discretize();
+  void invert();
+  bool isEpsilon();
 
   //Colour trace(Point3D p, Vector3D, int depth);
   //Colour phong(Point3D, Vector3D n, Material C);

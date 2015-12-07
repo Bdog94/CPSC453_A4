@@ -126,6 +126,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
 
 
    QTextStream cout(stdout);
+   //cout << "Trace" << "\n";
    Colour local, reflected, transmitted;
    Point3D q; //intersection point
    Vector3D n, r, t;    //normal, reflection, transmission
@@ -144,12 +145,9 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    double t = inter.m_t;
 
 
-
    if (t != std::numeric_limits<float>::max() ){
        if (t < t_min && t < 0){
-           cout << "Prev t_min is" << t_min << "\n";
            t_min = t;
-           cout << "Current t_min is " << t_min << "\n";
            obj_toDraw = i;
        }
     }
@@ -160,7 +158,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    }
 
 
-   cout << "t_min " << t_min << "\n";
+
 
    q = p + (t_min - 0.01) * d;//point that the ray intersected with
    n = objects[obj_toDraw]->getNormal(q);
@@ -179,23 +177,27 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    this->view_pos = &p;
    Material objectMaterial = objects[obj_toDraw]->getC();
    local = phong(q , n ,objectMaterial);
+   if (isNormalMode) {
    reflected = * objectMaterial.k_reflect *trace(q, r, depth + 1);
-   //transmitted = trace(q, t, depth + 1);
-   //Clamp RGB to 0 or 1
 
+   if (reflected.isEpsilon()){
+       cout << "Depth is " << depth << "close to epsilon \n";
+       return local + reflected;
+   }
    Colour ret = local + reflected;
-
-   //Colour ret = Colour(t_min/13.7, t_min/13.7, t_min/13.7);
-   //QTextStream cout(stdout);
-
-
    ret.clamp();
-  // return *bgColour;
-
-
    return ret;
 
-   //return local + reflected + transmitted;
+   } else if (isCel) {
+
+       local.discretize();
+       return local;
+
+   } else if (isInvertedMode){
+       local.invert();
+       return local;
+   }
+   //transmitted = trace(q, t, depth + 1);
 
 }
 
@@ -238,7 +240,9 @@ Intersect Circle::intersect(Point3D p, Vector3D D)
         //Intersect inter = new Intersect(0, false);
     } else if (num_roots == 1){
         //inter = new Intersect(true);
-        return Intersect(roots[0], true);
+        Intersect inter = new Intersect(roots[0], true);
+        inter.isEdge = true;
+        return inter;
         //return inter;
     } else {
         return Intersect(roots[0], true);
@@ -299,9 +303,11 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
     Colour *diffuse = new Colour();
     Colour *specular = new Colour();
 
+    //p = p + (0.01 * n);
 
     //Ambient
-    *ambient = *C.ambient;
+    *ambient = *C.ambient * Colour(0.9, 0.9, 0.9);
+    *ret = *ambient;
 
     //for each light
     for (int i = 0; i < lights.size(); i++)
@@ -314,9 +320,11 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
 
 
 
+
+
         if ( intersect(p, shadowRay)){
 
-        *ambient = *C.ambient * *light->Ia;
+
 
         //Diffuse:clamp to prevent subratction if normal faces away Might be ambient
         Colour light_Id = * light->Id;
@@ -335,8 +343,9 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         V.normalize();
 
         //*specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
-        *ret = *ret + *ambient + *diffuse + *specular;
+        *ret = *ret  + *diffuse + *specular;
         }
+
     }
 
     //Clamp colour between 0-1 (or 0 - 255) before return!
@@ -463,9 +472,12 @@ Intersect Pyriamid::intersect(Point3D p, Vector3D d)
 
 
 
-    if ( (alpha + beta + gamma) <= (1.001) && (alpha + beta + gamma) >= (0.999) )
+    if ( (alpha + beta + gamma) <= (1.001) && (alpha + beta + gamma) >= (0.999)  )
     {
+
+
         return Intersect(t, true);
+
     } else {
         return Intersect(std::numeric_limits<float>::max(), t);
     }

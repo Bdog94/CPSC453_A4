@@ -19,6 +19,7 @@ class Intersect
 public:
     double m_t;
     bool m_status;
+    bool isEdge = false;
     Colour * colour;
     Intersect(double t,bool status){
         m_t = t;
@@ -156,6 +157,10 @@ public:
     bool intersect(Point3D p, Vector3D d);
     bool doesHit(Point3D p, Vector3D d);
 
+    bool isCel;
+    bool isNormalMode;
+    bool isInvertedMode;
+
     Intersect intersect(Ray *r);
     int max;
     Scene();
@@ -163,6 +168,7 @@ public:
         bgColour = &p_bgColour;
         max = max_depth;
    }
+
 
     //void addObject(Object *);
 
