@@ -125,6 +125,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
 {
 
 
+   QTextStream cout(stdout);
    Colour local, reflected, transmitted;
    Point3D q; //intersection point
    Vector3D n, r, t;    //normal, reflection, transmission
@@ -143,9 +144,12 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    double t = inter.m_t;
 
 
+
    if (t != std::numeric_limits<float>::max() ){
-       if (t < t_min ){
+       if (t < t_min && t < 0){
+           cout << "Prev t_min is" << t_min << "\n";
            t_min = t;
+           cout << "Current t_min is " << t_min << "\n";
            obj_toDraw = i;
        }
     }
@@ -155,7 +159,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
        return *bgColour;
    }
 
-   QTextStream cout(stdout);
+
    cout << "t_min " << t_min << "\n";
 
    q = p + (t_min - 0.01) * d;//point that the ray intersected with
@@ -168,7 +172,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //q = intersect(p, d, status);
    //if (status == noHit) return bgColour;
    //Might want to flip d
-   Vector3D l = (q - p);
+   Vector3D l = (p - q);
    r = -l + 2 * (l.dot(n)) * n ;
    r.normalize();
    //t = transmit(q, n);
@@ -237,11 +241,14 @@ Intersect Circle::intersect(Point3D p, Vector3D D)
         return Intersect(roots[0], true);
         //return inter;
     } else {
-        if (roots[0] < roots[1]){
+        return Intersect(roots[0], true);
+        /*
+        if (roots[0] > roots[1]){
             return Intersect(roots[0], true);
         } else {
             return Intersect(roots[1], true);
         }
+        */
     }
 
 
