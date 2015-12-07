@@ -20,7 +20,7 @@ public:
     double m_t;
     bool m_status;
     Colour * colour;
-    Intersect(double t,bool status, Colour &p_Colour){
+    Intersect(double t,bool status){
         m_t = t;
         m_status = status;
     }
@@ -111,10 +111,11 @@ public:
 class Object
 {
 public:
-    virtual float intersect(Point3D p, Vector3D d);
+    virtual Intersect intersect(Point3D p, Vector3D d);
     virtual Colour getColour();
     virtual Material getC();
     virtual Point3D getOrigin();
+    virtual Vector3D getNormal(Point3D q);
     //Material * mat;
 
     Point3D *origin;
@@ -172,14 +173,16 @@ public:
 class Circle : public Object
 {
 public:
-    float intersect(Point3D p, Vector3D D);
+    Intersect intersect(Point3D p, Vector3D D);
     Point3D * center;
     Colour *circ_colour;
     float radius;
     Material *C;
     Colour getColour();
     Point3D getOrigin();
+    Vector3D getNormal(Point3D q);
     Material getC();
+
 
     //using Object::Object;
     Circle (Point3D &p_center, Colour &p_colour, float p_raduis, Material &p_C){
@@ -200,12 +203,13 @@ public:
 class Pyriamid : public Object
 {
 public:
-    float intersect(Point3D p, Vector3D d);
+    Intersect intersect(Point3D p, Vector3D d);
     Point3D *center;
     Colour *triColour;
 
     Colour getColour();
     Point3D getOrigin();
+    Vector3D getNormal(Point3D q);
     Material getC();
 
     Point3D *p1;
@@ -221,6 +225,31 @@ public:
         C = &p_C;
     }
 
+};
+class Plane : public Object
+{
+public:
+    Intersect intersect(Point3D p, Vector3D d);
+    Colour *planeColour;
+
+    Colour getColour();
+    Point3D getOrigin();
+    Vector3D getNormal(Point3D q);
+    Material getC();
+
+    Point3D *p1;
+    Point3D *p2;
+    Point3D *p3;
+    Material *C;
+
+    Plane(Point3D &p_p1, Point3D &p_p2, Point3D &p_p3, Material &p_C)
+    {
+        p1 = &p_p1;
+        p2 = &p_p2;
+        p3 = &p_p3;
+        C = &p_C;
+
+    }
 };
 
 

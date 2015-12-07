@@ -139,12 +139,12 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //Ray * ray = new Ray( p , d);
 
 
-   double t = (double) obj->intersect(p, d);
-
+   Intersect inter =  obj->intersect(p, d);
+   double t = inter.m_t;
 
 
    if (t != std::numeric_limits<float>::max() ){
-       if (t < t_min){
+       if (t < t_min ){
            t_min = t;
            obj_toDraw = i;
        }
@@ -155,12 +155,15 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
        return *bgColour;
    }
 
+   QTextStream cout(stdout);
+   cout << "t_min " << t_min << "\n";
+
    q = p + (t_min - 0.01) * d;//point that the ray intersected with
-   n = (objects[obj_toDraw]->getOrigin() - q);
+   n = objects[obj_toDraw]->getNormal(q);
    //n =  (q - objects[obj_toDraw]->getOrigin());
   // n = 1.0 * (q - Point3D(0, 0, 0)); //hacky way to copy q
 
-   n.normalize();
+
    //Intersect inter = obj->intersect(ray);
    //q = intersect(p, d, status);
    //if (status == noHit) return bgColour;
@@ -179,9 +182,9 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    Colour ret = local + reflected;
 
    //Colour ret = Colour(t_min/13.7, t_min/13.7, t_min/13.7);
-   QTextStream cout(stdout);
+   //QTextStream cout(stdout);
 
-   cout << obj_toDraw << "\n";
+
    ret.clamp();
   // return *bgColour;
 
@@ -206,7 +209,7 @@ Scene::Scene()
 }
 
 
-float Circle::intersect(Point3D p, Vector3D D)
+Intersect Circle::intersect(Point3D p, Vector3D D)
 {
 
     //Point3D *p = r->p;
@@ -226,18 +229,18 @@ float Circle::intersect(Point3D p, Vector3D D)
     if (num_roots == 0){
         //printf("No intersection  :(");
        // inter = new Intersect(false);
-        return std::numeric_limits<float>::max();
+        return Intersect(std::numeric_limits<float>::max(), false);
         //return inter;
         //Intersect inter = new Intersect(0, false);
     } else if (num_roots == 1){
         //inter = new Intersect(true);
-        return roots[0];
+        return Intersect(roots[0], true);
         //return inter;
     } else {
         if (roots[0] < roots[1]){
-            return roots[0];
+            return Intersect(roots[0], true);
         } else {
-            return roots[1];
+            return Intersect(roots[1], true);
         }
     }
 
@@ -253,6 +256,14 @@ Colour Circle::getColour()
 Point3D Circle::getOrigin()
 {
     return *origin;
+
+}
+
+Vector3D Circle::getNormal(Point3D q)
+{
+    Vector3D n= (*center - q);
+    n.normalize();
+    return n;
 
 }
 
@@ -294,16 +305,11 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         shadowRay.normalize();
 
 
+
+
         if ( intersect(p, shadowRay)){
 
-
-
-        //ObjectHit = interscect(shadowRay, p);
-        //if nothing hit or if what we hit is beyond is beyond the light
-
-
-
-
+        *ambient = *C.ambient * *light->Ia;
 
         //Diffuse:clamp to prevent subratction if normal faces away Might be ambient
         Colour light_Id = * light->Id;
@@ -315,14 +321,13 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         //*ret = *ret + *C.k_d * *light->Id * fmax(n.dot(shadowRay), 0);
         //*ret = *ret + *C.k_d * *light->Id * fmax((*light->loc - p).dot(n), 0);
         //Specular
-        Vector3D l = (*view_pos - p);
-        l.normalize();
-        Vector3D R = 2 * (n.dot(l)) * n - l;
+
+        Vector3D R = 2 * (n.dot(shadowRay)) * n - shadowRay;
         R.normalize();
-        Vector3D V = *eye -p;
+        Vector3D V = *view_pos -p;
         V.normalize();
 
-        *specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
+        //*specular = (* C.k_s * *light->Is) * pow( fmax(R.dot(V),0), C.exp);
         *ret = *ret + *ambient + *diffuse + *specular;
         }
     }
@@ -341,9 +346,9 @@ bool Scene::intersect(Point3D p, Vector3D d)
     bool ret = false;
     for (int i = 0; i < objects.size(); i++){
      Object *obj = objects[i];
-     double t = obj->intersect(p, d);
+     Intersect inter = obj->intersect(p, d);
 
-     if ( t > 0 && t < std::numeric_limits<float>::max()){
+     if (inter.m_t <std::numeric_limits<float>::max() && inter.m_t > 0 && inter.m_status){
          ret = true;
      }
 
@@ -357,12 +362,14 @@ bool Scene::doesHit(Point3D p, Vector3D d)
 
     for (int i = 0; i < objects.size(); i++){
 
+        /*
         Object *obj = objects[i];
         double t = obj->intersect(p, d);
 
-        if ( t < 0){
+        if ( t > 0){
             return true;
         }
+        */
     }
 
 
@@ -385,7 +392,7 @@ float Circle::intersect(Ray *r)
 */
 
 
-float Object::intersect(Point3D p, Vector3D d)
+Intersect Object::intersect(Point3D p, Vector3D d)
 {
 
 }
@@ -405,41 +412,33 @@ Point3D Object::getOrigin()
 
 }
 
-float Pyriamid::intersect(Point3D p, Vector3D d)
+Vector3D Object::getNormal(Point3D q)
 {
 
-    //Point3D center = (*p1 + *p2 + *p3);
-    //Vector3D n = center - p;
-    //n.normalize();
+}
+
+Intersect Pyriamid::intersect(Point3D p, Vector3D d)
+{
+
     Point3D P;
 
     Vector3D temp_p = p - Point3D(0, 0, 0);
     Vector3D numer = (*p1 - *p3);
     Vector3D denom = (*p2 - *p3);
 
-    Vector3D n = numer.cross(denom);
-    //n.normalize();
-
-    //double t = (numer.dot(n))/(denom.dot(n));
+    Vector3D n = numer.cross(denom);    //Calculates the normal of the Pyriamid(really is a triangle)
 
     QTextStream cout(stdout);
 
 
     double t = -(n.dot(p - *p1)/(n.dot(d)));
 
-    cout << t << "\n";
-
-    cout << "Numer is " << n.dot(p - *p1) << "\n";
-    cout << "Denom is " << n.dot(d) << "\n";
 
     Point3D intersectP = p + t * d;
 
     Vector3D B_P = *p3 - intersectP;
-   // B_P.normalize();
     Vector3D A_P = *p2 - intersectP;
-    //A_P.normalize();
     Vector3D C_P = *p1 - intersectP;
-    //C_P.normalize();
 
     Vector3D p3_p1 = *p3 - *p1;
     Vector3D p2_p1 = *p2 - *p1;
@@ -455,36 +454,16 @@ float Pyriamid::intersect(Point3D p, Vector3D d)
     beta = s2/s;
     gamma = s3/s;
 
-    cout << " alpha + beta + gamma " << alpha + beta + gamma << "\n";
 
-    if ( (alpha + beta + gamma) <= (1.01) && (alpha + beta + gamma) >= (0.99) )
+
+    if ( (alpha + beta + gamma) <= (1.001) && (alpha + beta + gamma) >= (0.999) )
     {
-        return t;
+        return Intersect(t, true);
     } else {
-        return std::numeric_limits<float>::max();
+        return Intersect(std::numeric_limits<float>::max(), t);
     }
 
 
-   // alpha = s1/
-
-
-    //Inside test!
-
-
-
-
-    //Vector3D V1_n = *p2 - *p1;
-    //Vector3D V2_n = *p3 - *p1;
-    //Vector3D n = V1_n.cross(V2_n);
-    n.normalize();
-
-    //double t = -1 * (p + )
-    Vector3D V1 = *p1 - p;
-    Vector3D V2 = *p2 - p;
-    Vector3D N = V1.cross(V2);
-    N.normalize();
-
-    double d1 = -1 * (p - Point3D(0, 0, 0)).dot(N);
 
 
 }
@@ -499,4 +478,63 @@ Point3D Pyriamid::getOrigin()
 
 }
 
+Vector3D Pyriamid::getNormal(Point3D q)
+{
+    Vector3D cross1 = (*p1 - *p3);
+    Vector3D cross2 = (*p2 - *p3);
 
+    Vector3D n = cross1.cross(cross2);    //Calculates the normal of the Pyriamid(really is a triangle)
+    n.normalize();
+    return n;
+}
+
+
+
+Intersect Plane::intersect(Point3D p, Vector3D d)
+{
+
+    Vector3D numer = (*p1 - *p3);
+    Vector3D denom = (*p2 - *p3);
+
+    Vector3D n = numer.cross(denom);    //Calculates the normal of the plane
+
+    QTextStream cout(stdout);
+
+
+    double t = -(n.dot(p - *p1)/(n.dot(d)));
+
+    if ( t < 0){
+        return Intersect(t, true);
+    } else {
+        return Intersect(std::numeric_limits<float>::max(), false);
+    }
+
+}
+
+Colour Plane::getColour()
+{
+
+}
+
+Point3D Plane::getOrigin()
+{
+
+}
+
+Vector3D Plane::getNormal(Point3D q)
+{
+    Vector3D numer = (*p1 - *p3);
+    Vector3D denom = (*p2 - *p3);
+
+    Vector3D n = numer.cross(denom);    //Calculates the normal of the plane
+    n.normalize();
+    return n;
+
+
+}
+
+Material Plane::getC()
+{
+    return *this->C;
+
+}
