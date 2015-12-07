@@ -348,7 +348,7 @@ bool Scene::intersect(Point3D p, Vector3D d)
      Object *obj = objects[i];
      Intersect inter = obj->intersect(p, d);
 
-     if (inter.m_t <std::numeric_limits<float>::max() && inter.m_t > 0 && inter.m_status){
+     if (inter.m_t <std::numeric_limits<float>::max() && inter.m_t > 0 ){
          ret = true;
      }
 

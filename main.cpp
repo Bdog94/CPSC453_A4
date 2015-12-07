@@ -12,13 +12,20 @@ int main(int argc, char *argv[])
     // currently unused parameters
 	Q_UNUSED(argc);
 	Q_UNUSED(argv);
-
-    QTextStream cout(stdout);
-
-	// image width and height
-	// TODO: prompt user on command line for dimensions
     double width = 400;
     double height = 400;
+
+    QTextStream qin(stdin);
+    QTextStream qout(stdout);
+
+    /*
+    qout << "Enter image width: " << endl;
+    qin >> width;
+    qout << "Enter image height: " << endl;
+    qin >> height;
+    */
+	// image width and height
+
 
 	// create new image
 	QImage image(width, height, QImage::Format_RGB32);
@@ -45,10 +52,10 @@ int main(int argc, char *argv[])
 
     Colour *k_reflect = new Colour(0.1, 0.1, 0.1);
     double exp = 5;
-    Point3D *circ_center = new Point3D(0, 0, 4);
+    Point3D *circ_center = new Point3D(4, 0, 1);
     Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp, *k_reflect);
     Circle *circ = new Circle( *circ_center, *circColour, 5, *circ_Material);
-    //scene->objects.push_back(circ);
+    scene->objects.push_back(circ);
 
 
     Material *c_plane = new Material(*planeColour, *k_a, *k_d, *k_s, exp, *k_reflect);
@@ -57,28 +64,28 @@ int main(int argc, char *argv[])
 
 
     //Triangle code
-    Point3D *p3 = new Point3D(10, 10, 4);
-    Point3D *p2 = new Point3D( 10,  0, 4);
-    Point3D *p1 = new Point3D(0, 0, 4);
+    Point3D *p3 = new Point3D(8, 8, 8);
+    Point3D *p2 = new Point3D( -8,  8, 8);
+    Point3D *p1 = new Point3D(8, 0, 8);
     Colour *pColour = new Colour(0, 0, 1);
     Material *p_Material = new Material(*pColour, *k_a, *k_d, *k_s, exp, *k_reflect);
     Pyriamid *p = new Pyriamid(*p1,*p2, *p3, *p_Material);
-    scene->objects.push_back(p);
+    //scene->objects.push_back(p);
 
 
-    Point3D *tri2_p1 = new Point3D(10, 10, 4);
-    Point3D *tri2_p2 = new Point3D(0, 10, 4);
-    Point3D *tri2_p3 = new Point3D(0, 0, 4);
+    Point3D *tri2_p1 = new Point3D(8, 0, 8);
+    Point3D *tri2_p2 = new Point3D(-8, 0, 8);
+    Point3D *tri2_p3 = new Point3D(-8, 8, 8);
 
     Pyriamid *pry_2 = new Pyriamid(*tri2_p1, *tri2_p2, *tri2_p3, *p_Material);
-    scene->objects.push_back(pry_2);
+    //scene->objects.push_back(pry_2);
 
 
-    Point3D *circ2_center = new Point3D(4, 0, 16);
+    Point3D *circ2_center = new Point3D(4, 0, 4);
     Colour  *circ2_color = new Colour(1, 0, 0);
     Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp, *k_reflect);
-    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 5, *circ2_Material );
-    //scene->objects.push_back(circ2);
+    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 3, *circ2_Material );
+    scene->objects.push_back(circ2);
 
     Point3D *eye = new Point3D(0, 0,-8);
     Point3D *lightLoc = new Point3D(0, 0, -8);
@@ -98,7 +105,7 @@ int main(int argc, char *argv[])
     //scene->lights.push_back(light3);
 
     scene->eye = eye;
-    scene->max = 0;
+    scene->max = 1;
     bool prev = false;
     printf("Starting the raytracer");
 	// iterate over the pixels & set colour values
@@ -289,7 +296,7 @@ int main(int argc, char *argv[])
 
 	// save to file
 	// TODO: prompt user on command line for output name
-    image.save("Square.png");
+    image.save("Shadows2.png");
     printf("Created the file \n");
 	
 	// application successfully returned
