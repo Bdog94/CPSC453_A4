@@ -64,9 +64,9 @@ int main(int argc, char *argv[])
 
     Colour *k_reflect = new Colour(0.3, 0.3, 0.3);
     double exp = 5;
-    Point3D *circ_center = new Point3D(-4, 0, 8);
+    Point3D *circ_center = new Point3D(-4, 0, 40);
     Material *circ_Material = new Material(* circColour, *k_a,  *k_d, *k_s,exp, *k_reflect);
-    Circle *circ = new Circle( *circ_center, *circColour, 6, *circ_Material);
+    Circle *circ = new Circle( *circ_center, *circColour, 12, *circ_Material);
     scene->objects.push_back(circ);
 
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     Colour *pColour = new Colour(0.1, 0.1, 0.1);
     Material *p_Material = new Material(*pColour, *k_a, *k_d, *k_s, exp, *k_reflect);
     Pyriamid *p = new Pyriamid(*p1,*p2, *p3, *p_Material);
-    scene->objects.push_back(p);
+    //scene->objects.push_back(p);
 
 
     Point3D *tri2_p1 = new Point3D(8, 0, 10);
@@ -98,20 +98,24 @@ int main(int argc, char *argv[])
     Point3D *tri_floor_p3 = new Point3D(10, -10, 0);
 
     Pyriamid *floor1 = new Pyriamid(*tri_floor_p1, *tri_floor_p2, *tri_floor_p3, *p_Material);
-    //scene->objects.push_back(floor1);
+    scene->objects.push_back(floor1);
 
     Point3D *tri_floor2_p1 = new Point3D(10, -10, 0);
     Point3D *tri_floor2_p2 = new Point3D(10, -10, 10);
     Point3D *tri_floor2_p3 = new Point3D(-10, -10, 10);
 
     Pyriamid *floor2 = new Pyriamid(*tri_floor2_p1, *tri_floor2_p2, *tri_floor2_p3, *p_Material);
-    //scene->objects.push_back(floor2);
+    scene->objects.push_back(floor2);
+
+    Point3D *backwall_p1 = new Point3D(10, 50, 10);
+    Pyriamid *backwall1 = new Pyriamid(*tri_floor2_p2, *tri_floor2_p3, *backwall_p1, *p_Material);
+    scene->objects.push_back(backwall1);
 
 
-    Point3D *circ2_center = new Point3D(0, 0, 20);
+    Point3D *circ2_center = new Point3D(0, 0, 10);
     Colour  *circ2_color = new Colour(1, 0, 0);
     Material *circ2_Material = new Material(*circ2_color, *k_a, *k_d, *k_s, exp, *k_reflect);
-    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 5, *circ2_Material );
+    Circle *circ2 = new Circle(*circ2_center, *circ2_color, 7, *circ2_Material );
    scene->objects.push_back(circ2);
 
     Point3D *eye = new Point3D(eyeX, eyeY,eyeZ);
@@ -128,9 +132,9 @@ int main(int argc, char *argv[])
     Light *light2 = new Light(*light2Loc, *Ia, *Id, *Is);
     Light *light3 = new Light(*light3Loc, *Ia, *Id, *Is);
     //Multiple light code
-    //scene->lights.push_back(light);
-    //scene->lights.push_back(light2);
-    //scene->lights.push_back(topLight);
+    scene->lights.push_back(light);
+    scene->lights.push_back(light2);
+    scene->lights.push_back(topLight);
     scene->lights.push_back(light3);
 
     //Scene set up stuff
@@ -246,7 +250,7 @@ int main(int argc, char *argv[])
     */
 	// save to file
 	// TODO: prompt user on command line for output name
-    image.save("Triangles2.png");
+    image.save("May2.png");
     printf("Created the file \n");
 	
 	// application successfully returned

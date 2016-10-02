@@ -176,7 +176,7 @@ Colour Scene::trace(Point3D p, Vector3D d, int depth)
    //t = transmit(q, n);
    this->view_pos = &p;
    Material objectMaterial = objects[obj_toDraw]->getC();
-   local = phong(q , n ,objectMaterial);
+   local = phong(q , n , * objects[obj_toDraw]);
    if (isNormalMode) {
    reflected = * objectMaterial.k_reflect *trace(q, r, depth + 1);
 
@@ -288,8 +288,9 @@ Material Pyriamid::getC() {
     return * this->C;
 }
 
-Colour Scene::phong(Point3D p, Vector3D n, Material C)
+Colour Scene::phong(Point3D p, Vector3D n, Object& o)
 {
+    Material C = o.getC();
 
     QTextStream cout(stdout);
     //double test = n.dot(Vector3D(0, 0, 0));
@@ -309,6 +310,8 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
     *ambient = *C.ambient * Colour(0.9, 0.9, 0.9);
     *ret = *ambient;
 
+
+
     //for each light
     for (int i = 0; i < lights.size(); i++)
     {
@@ -317,12 +320,31 @@ Colour Scene::phong(Point3D p, Vector3D n, Material C)
         Vector3D shadowRay = ( * light->loc - p);
         shadowRay.normalize();
 
+        double t_min = std::numeric_limits<float>::max();
+
+
+        for (int i = 0; i <objects.size(); i++){
+        Object * obj = objects[i];
+        //Ray * ray = new Ray( p , d);
+
+
+        Intersect inter =  obj->intersect(p, shadowRay);
+        double t = inter.m_t;
+
+
+        if (t != std::numeric_limits<float>::max() ){
+            if (t < t_min && t < 0){
+                t_min = t;
+                //obj_toDraw = i;
+            }
+         }
+
+        }
 
 
 
 
-
-        if ( intersect(p, shadowRay)){
+        if (  o.intersect(p,shadowRay).m_t == t_min){
 
 
 

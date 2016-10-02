@@ -152,7 +152,7 @@ public:
     std:: vector <Object*> objects;
     Colour trace(Ray * r);
     Colour trace(Point3D p, Vector3D d, int depth);
-    Colour phong(Point3D, Vector3D n, Material C);
+    Colour phong(Point3D, Vector3D n, Object &o);
 
     bool intersect(Point3D p, Vector3D d);
     bool doesHit(Point3D p, Vector3D d);
